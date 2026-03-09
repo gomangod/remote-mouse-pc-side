@@ -4,17 +4,30 @@ import org.springframework.web.bind.annotation.*;
 
 import java.awt.*;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.Character;
-import java.net.URLEncoder;
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.List;
+
 
 @RestController
 @CrossOrigin
 public class controller {
 
-
+    final List<String> BLOCKED =  Arrays.asList(
+            "format", "diskpart", "del /f", "del /s",
+            "rd /s", "rmdir /s", "reg delete", "reg add",
+            "regedit", "net user", "net localgroup",
+            "bcdedit", "bootrec", "shutdown", "wmic os",
+            "powershell -enc", "powershell -e ",
+            "certutil -decode", "bitsadmin",
+            "wscript", "cscript", "runas", "psexec",
+            "netsh firewall", "netsh advfirewall"
+    );
+    final List<String> CHAIN_OPERATORS = Arrays.asList(
+            "&&", "||", "|", ";", "`", "$(", "&"
+    );
     static XYspeed Speed;
     static AsciiKeyTyper asciiKeyTyper;
 
@@ -80,15 +93,22 @@ public class controller {
 
     @RequestMapping(value = "/cmd", method = RequestMethod.POST)
     public String cmd(@RequestBody String command) throws IOException {
-        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);
-        builder.redirectErrorStream(true);
-        Process p = builder.start();
-        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        StringBuilder output = new StringBuilder();
-        String line;
-        while ((line = r.readLine()) != null) {
-            output.append(line).append("\n");
+        if(BLOCKED.stream().anyMatch(command.toLowerCase()::contains) || CHAIN_OPERATORS.stream().anyMatch(command.toLowerCase()::contains)){
+            return "commands of this kind not allowed";
         }
-        return output.toString();
+        else {
+            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c",command);
+            builder.redirectErrorStream(true);
+            builder.directory(new File("C:\\"));
+            Process p = builder.start();
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream(),"CP850"));
+            StringBuilder output = new StringBuilder();
+            String line;
+            while ((line = r.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+            return output.toString();
+        }
+
     }
 }

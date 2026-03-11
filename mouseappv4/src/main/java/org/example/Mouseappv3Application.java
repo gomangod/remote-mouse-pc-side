@@ -15,8 +15,6 @@ public class Mouseappv3Application {
         builder.headless(false);
 
         ConfigurableApplicationContext context = builder.run(args);
-        Server s = new Server();
-        s.RUN();
 	}
 
 }

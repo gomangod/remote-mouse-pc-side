@@ -6,23 +6,25 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class connecter {
-    static String ip = Server.senderIP;
     public static void disconnect() throws IOException {
+        String ip = Server.senderIP;
         Socket s = new Socket(ip,9112);
         OutputStreamWriter opsw = new OutputStreamWriter(s.getOutputStream());
-        PrintWriter pw = new PrintWriter(opsw);
+        PrintWriter pw = new PrintWriter(opsw,true);
         pw.println("refused");
+        pw.flush();
         opsw.close();
         s.close();
-        System.out.println();
         Server.senderIP = null;
     }
 
     public static void connect() throws IOException {
+        String ip = Server.senderIP;
         Socket s = new Socket(ip,9112);
         OutputStreamWriter opsw = new OutputStreamWriter(s.getOutputStream());
-        PrintWriter pw = new PrintWriter(opsw);
+        PrintWriter pw = new PrintWriter(opsw,true);
         pw.println("Connect");
+        pw.flush();
         opsw.close();
         s.close();
     }

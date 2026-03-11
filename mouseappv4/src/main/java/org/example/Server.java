@@ -1,12 +1,16 @@
 package org.example;
 
 
+import jakarta.annotation.PostConstruct;
+import org.springframework.stereotype.Component;
+
 import java.io.*;
 import java.net.*;
 import java.util.Timer;
 
-
+@Component
 public class Server {
+
 
      static int port = 9123;
      static RemoteMouseUI remoteMouseUI;
@@ -22,9 +26,6 @@ public class Server {
     ;
      static DatagramSocket socket;
     public static String senderIP;
-
-
-
 
 
 
@@ -73,6 +74,15 @@ public class Server {
         System.out.println("stopped");
     }}
 
-
+    @PostConstruct
+    public void init() {
+        new Thread(() -> {
+            try {
+                StartServer();
+            } catch (IOException e) {
+                System.err.println("Server failed to start: " + e.getMessage());
+            }
+        }).start();
+    }
 
 }
